@@ -3,7 +3,7 @@ from aiogram import Dispatcher, types
 
 class Others:
     @staticmethod
-    'def register_all(dispatcher: Dispatcher):
+    def register_all(dispatcher: Dispatcher):
         dispatcher.message.register(Others.fallback)
 
     @staticmethod
