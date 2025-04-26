@@ -1,5 +1,5 @@
 from aiogram import types, Dispatcher, F
-from aiogram.types import KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from aiogram.filters import Command
 
 
@@ -11,6 +11,7 @@ class MainMenu:
         dispatcher.message.register(MainMenu.store, F.text.contains("🛍️ Магазин"))
         dispatcher.message.register(MainMenu.travels, F.text.contains("✈️ Путешествия"))
         dispatcher.message.register(MainMenu.statistic, F.text.contains("📉 Статистика"))
+        dispatcher.message.register(MainMenu.settings, F.text.contains("⚙️ Настройки"))
         dispatcher.message.register(MainMenu.about, F.text.contains("🏝️ О проекте"))
 
         dispatcher.callback_query.register(MainMenu.store, F.data == "back_to_stores_menu")
@@ -51,7 +52,7 @@ class MainMenu:
 
         match type(query):
             case types.Message:
-                await query.answer(".", parse_mode="HTML", reply_markup=markup)
+                await query.answer("🛍️ <b>Выберите, пожалуйста, требуемый магазин:</b>", parse_mode="HTML", reply_markup=markup)
             case types.CallbackQuery:
                 await query.message.edit_text(".", parse_mode="HTML", reply_markup=markup)
 
@@ -64,19 +65,34 @@ class MainMenu:
 
         match type(query):
             case types.Message:
-                await query.answer(f"🧳 Сейчас Вы находить в {cur_pos}!", parse_mode="HTML", reply_markup=markup)
+                await query.answer(f"🧳 <b>Сейчас Вы находить в {cur_pos}!</b>", parse_mode="HTML", reply_markup=markup)
             case types.CallbackQuery:
-                await query.message.edit_text(" Сейчас Вы находить в {cur_pos}!", parse_mode="HTML",
+                await query.message.edit_text(f" Сейчас Вы находить в {cur_pos}!", parse_mode="HTML",
                                               reply_markup=markup)
 
     @staticmethod
     async def statistic(message: types.Message) -> None:
         statistics = {}
-        await message.answer(f"📉 Статистика проекта CocoTrade\n"
+        await message.answer(f"📉 <b>Статистика проекта CocoTrade</b>\n"
                              f"\n"
                              f"👥 Кол-во ферм: {statistics.get('count_farms', None)}\n"
                              f"🥥 Всего кокосов: {statistics.get('count_coconut', None)}\n"
                              f"💸 Донатов на сумму: {statistics.get('count_donuts', None)}\n", parse_mode="HTML")
+
+    @staticmethod
+    async def settings(message: types.Message) -> None:
+        is_subscribe_on_spam = None
+        is_admin = None
+
+        buttons = [[InlineKeyboardButton(text="🔇 Отписаться от рассылок",
+                                         callback_data='unsubscribe_by_spam') if is_subscribe_on_spam else InlineKeyboardButton(
+            text="🔊 Подписаться на рассылки", callback_data='subscribe_by_spam')],
+                   [InlineKeyboardButton(text="🗑️ Удалить аккаунт", callback_data='delete_account')]]
+        if is_admin:
+            buttons.append([InlineKeyboardButton(text="🧑‍💻 Админ-панель", callback_data='admin_panel')])
+        markup = InlineKeyboardMarkup(inline_keyboard=buttons)
+
+        await message.answer("⚙️ <b>Добро пожаловать в меню настроек!</b>", parse_mode="HTML", reply_markup=markup)
 
     @staticmethod
     async def about(message: types.Message) -> None:
