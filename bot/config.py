@@ -7,6 +7,8 @@ class EnvConfig:
     dotenv.load_dotenv()
 
     TOKEN = os.getenv("TOKEN")
+    API_HOST = os.getenv("API_HOST")
+    SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 class LoggingConfig:

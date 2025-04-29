@@ -11,7 +11,7 @@ class AppConfig:
 
 
 class DatabaseConfig:
-    DATABASE_URI = 'cocotrade.db'
+    DATABASE_URI = os.path.join(AppConfig.BASE_DIR, "instance", "db", "cocotrade.db")
 
 
 class LoggingConfig:
