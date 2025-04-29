@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy.orm import relationship, declarative_base, backref
 from datetime import datetime
 
 Base = declarative_base()
@@ -13,10 +13,11 @@ class User(Base):
     role_id = Column(Integer, ForeignKey('roles.id'), nullable=False, default=1)
     coconut_balance = Column(Integer, default=0)
     rub_balance = Column(Integer, default=0)
+    location = Column(Integer, default=1)
+    is_subscribe_on_spam = Column(Boolean, default=True)
 
     role = relationship("Role", back_populates="users")
-    farm = relationship("Farm", back_populates="owner", uselist=False)
-    location = relationship("UserLocation", back_populates="user", uselist=False)
+    farm = relationship("Farm", back_populates="owner", uselist=False, cascade="all, delete-orphan")
 
 
 class Role(Base):
@@ -44,9 +45,21 @@ class Coconut(Base):
     __tablename__ = 'coconuts'
 
     id = Column(Integer, primary_key=True)
+    coconut_type = Column(String, nullable=False)
+    amount_per_hour = Column(Integer, nullable=False)
+    
+    store_item_id = Column(Integer, ForeignKey('store_items.id', ondelete='CASCADE'), nullable=False)
+    store_item = relationship("StoreItem", backref=backref("coconut", uselist=False, cascade="all, delete-orphan"))
+
+
+class StoreItem(Base):
+    __tablename__ = 'store_items'
+
+    id = Column(Integer, primary_key=True)
+    store_type = Column(String, nullable=False)
     name = Column(String, unique=True, nullable=False)
     description = Column(String)
-    count_per_hour = Column(Integer, nullable=False)
+    price = Column(Integer, nullable=False)
 
 
 class Location(Base):
@@ -55,18 +68,6 @@ class Location(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False, unique=True)
     description = Column(String)
-
-
-class UserLocation(Base):
-    __tablename__ = 'user_locations'
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, unique=True)
-    location_id = Column(Integer, ForeignKey('locations.id'), nullable=False)
-    arrived_at = Column(DateTime, default=datetime.utcnow)
-
-    user = relationship("User", back_populates="location")
-    location = relationship("Location")
 
 
 class Market(Base):
