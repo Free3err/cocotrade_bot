@@ -6,6 +6,7 @@ from config import EnvConfig
 
 dispatcher = Dispatcher()
 
+
 class CocoTradeBot:
     def __init__(self) -> None:
         self.token = EnvConfig.TOKEN
@@ -18,10 +19,12 @@ class CocoTradeBot:
     async def init_dispatcher(self) -> None:
         await dispatcher.start_polling(self.bot)
 
-    async def init_handlers(self) -> None:
+    @staticmethod
+    async def init_handlers() -> None:
         MainMenu.register_all(dispatcher)
-        Others.register_all(dispatcher)
+        Admin.register_all(dispatcher)
         Store.register_all(dispatcher)
+        Others.register_all(dispatcher)
 
 
 if __name__ == '__main__':

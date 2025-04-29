@@ -2,6 +2,9 @@ from aiogram import types, Dispatcher, F
 from aiogram.types import KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 from aiogram.filters import Command
 
+from bot.services import UserRequests
+from bot.services.location import LocationRequests
+
 
 class MainMenu:
     @staticmethod
@@ -18,6 +21,10 @@ class MainMenu:
 
     @staticmethod
     async def start(message: types.Message) -> None:
+        user = UserRequests.get(message.from_user.id)
+        if not user:
+            UserRequests.register(message.from_user.id)
+
         buttons = [[KeyboardButton(text="🥥 Ферма")],
                    [KeyboardButton(text="🛍️ Магазин"), KeyboardButton(text="✈️ Путешествия")],
                    [KeyboardButton(text="📉 Статистика")],
@@ -40,9 +47,20 @@ class MainMenu:
 
         match type(query):
             case types.Message:
-                await query.answer("🥥 Добро пожаловать на ферму!", parse_mode="HTML", reply_markup=markup)
+                user_data = UserRequests.get(query.from_user.id)
+                await query.answer("🥥 <b>Добро пожаловать на ферму!</b>\n"
+                                   f"\n"
+                                   f"🏦 Кокосовый баланс: <b>{user_data.get('coconut_balance')} кокосов</b>\n"
+                                   f"💵 Рублевый баланс: <b>{user_data.get('rub_balance')} рублей</b>",
+                                   parse_mode="HTML",
+                                   reply_markup=markup)
             case types.CallbackQuery:
-                await query.message.edit_text("🥥 Добро пожаловать на ферму!", parse_mode="HTML", reply_markup=markup)
+                user_data = UserRequests.get(query.message.from_user.id)
+                await query.message.edit_text("🥥 <b>Добро пожаловать на ферму!</b>\n"
+                                              f"\n"
+                                              f"🏦 Кокосовый баланс: <b>{user_data.get('coconut_balance')} кокосов</b>\n"
+                                              f"💵 Рублевый баланс: <b>{user_data.get('rub_balance')} рублей</b>",
+                                              parse_mode="HTML", reply_markup=markup)
 
     @staticmethod
     async def store(query: types.Message | types.CallbackQuery) -> None:
@@ -52,22 +70,28 @@ class MainMenu:
 
         match type(query):
             case types.Message:
-                await query.answer("🛍️ <b>Выберите, пожалуйста, требуемый магазин:</b>", parse_mode="HTML", reply_markup=markup)
+                await query.answer("🛍️ <b>Выберите, пожалуйста, требуемый магазин:</b>", parse_mode="HTML",
+                                   reply_markup=markup)
             case types.CallbackQuery:
-                await query.message.edit_text(".", parse_mode="HTML", reply_markup=markup)
+                await query.message.edit_text("🛍️ <b>Выберите, пожалуйста, требуемый магазин:</b>", parse_mode="HTML",
+                                              reply_markup=markup)
 
     @staticmethod
     async def travels(query: types.Message | types.CallbackQuery) -> None:
-        cur_pos = None
 
         buttons = [[InlineKeyboardButton(text="🧭 Локации", callback_data='locations')]]
         markup = InlineKeyboardMarkup(inline_keyboard=buttons)
 
         match type(query):
             case types.Message:
-                await query.answer(f"🧳 <b>Сейчас Вы находить в {cur_pos}!</b>", parse_mode="HTML", reply_markup=markup)
+                user_data = UserRequests.get(query.from_user.id)
+                location_data = LocationRequests.get(user_data.get('location'))
+                await query.answer(f"🧳 <b>Сейчас Вы находить в {location_data.get('name')}!</b>", parse_mode="HTML",
+                                   reply_markup=markup)
             case types.CallbackQuery:
-                await query.message.edit_text(f" Сейчас Вы находить в {cur_pos}!", parse_mode="HTML",
+                user_data = UserRequests.get(query.message.from_user.id)
+                location_data = LocationRequests.get(user_data.get('location'))
+                await query.message.edit_text(f" Сейчас Вы находить в {location_data.get('name')}!", parse_mode="HTML",
                                               reply_markup=markup)
 
     @staticmethod
@@ -75,20 +99,20 @@ class MainMenu:
         statistics = {}
         await message.answer(f"📉 <b>Статистика проекта CocoTrade</b>\n"
                              f"\n"
-                             f"👥 Кол-во ферм: {statistics.get('count_farms', None)}\n"
-                             f"🥥 Всего кокосов: {statistics.get('count_coconut', None)}\n"
-                             f"💸 Донатов на сумму: {statistics.get('count_donuts', None)}\n", parse_mode="HTML")
+                             f"👥 Кол-во ферм: <b>{statistics.get('count_farms', None)}</b>\n"
+                             f"🥥 Всего кокосов: <b>{statistics.get('count_coconut', None)}</b>\n"
+                             f"💸 Донатов на сумму: <b>{statistics.get('count_donuts', None)} рублей</b>",
+                             parse_mode="HTML")
 
     @staticmethod
     async def settings(message: types.Message) -> None:
-        is_subscribe_on_spam = None
-        is_admin = None
+        user_data = UserRequests.get(message.from_user.id)
 
         buttons = [[InlineKeyboardButton(text="🔇 Отписаться от рассылок",
-                                         callback_data='unsubscribe_by_spam') if is_subscribe_on_spam else InlineKeyboardButton(
+                                         callback_data='unsubscribe_by_spam') if user_data['is_subscribe_on_spam'] else InlineKeyboardButton(
             text="🔊 Подписаться на рассылки", callback_data='subscribe_by_spam')],
                    [InlineKeyboardButton(text="🗑️ Удалить аккаунт", callback_data='delete_account')]]
-        if is_admin:
+        if user_data['role_id'] == 0:
             buttons.append([InlineKeyboardButton(text="🧑‍💻 Админ-панель", callback_data='admin_panel')])
         markup = InlineKeyboardMarkup(inline_keyboard=buttons)
 
