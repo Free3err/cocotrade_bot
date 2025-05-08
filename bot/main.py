@@ -21,7 +21,10 @@ class CocoTradeBot:
 
     @staticmethod
     async def init_handlers() -> None:
+        AdminManagingAccount.register_all(dispatcher)
+        ManagingAccount.register_all(dispatcher)
         MainMenu.register_all(dispatcher)
+        Farm.register_all(dispatcher)
         Admin.register_all(dispatcher)
         Store.register_all(dispatcher)
         Others.register_all(dispatcher)
