@@ -1,22 +1,23 @@
-from flask import make_response
+from flask import make_response, request
 from flask_restx import Resource
 
-from ....instance.db.handlers import UserHandler
+from ....instance.db.handlers import UserHandler, FarmHandler
 from ....utils import DatabaseUtils
 
 
 class User(Resource):
     @staticmethod
     def get(telegram_id):
-        user = UserHandler().get(telegram_id=telegram_id)
+        user = UserHandler.get(telegram_id=telegram_id)
         if user:
-            user_data = DatabaseUtils.object_to_dict(user)
+            user_data = user.full_data()
             return make_response({"ok": True, "data": user_data}, 200)
         return make_response({"ok": False, "data": None, "message": "User doesn't exist"}, 404)
 
     @staticmethod
     def post(telegram_id):
-        user = UserHandler().create(telegram_id=telegram_id)
+        farm = FarmHandler.create()
+        user = UserHandler.create(telegram_id=telegram_id, farm_id=farm.id)
         if user:
             user_data = DatabaseUtils.object_to_dict(user)
             return make_response({"ok": True, "data": user_data}, 200)
@@ -25,8 +26,16 @@ class User(Resource):
 
     @staticmethod
     def delete(telegram_id):
-        pass
+        is_ok = UserHandler().remove(telegram_id=telegram_id)
+        if is_ok:
+            return make_response({"ok": True}, 200)
+        return make_response({"ok": False, "message": "Failed to delete user"}, 502)
 
     @staticmethod
-    def put(telegram_id):
-        pass
+    def patch(telegram_id):
+        response = request.json
+        user = UserHandler().update(telegram_id=telegram_id, data=response)
+        if user:
+            user_data = user.full_data()
+            return make_response({"ok": True, "data": user_data}, 200)
+        return make_response({"ok": False, "message": "User doesn't exist"}, 404)
