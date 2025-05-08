@@ -1,3 +1,3 @@
-from .config import DatabaseConfig, AppConfig
+from .config import DatabaseConfig, AppConfig, LoggingConfig
 
-__all__ = ['DatabaseConfig', 'AppConfig']
+__all__ = ['DatabaseConfig', 'AppConfig', 'LoggingConfig']

@@ -4,6 +4,7 @@ from flask_restx import Api
 
 from .instance import AppConfig
 from .api import register_resources
+from . import scheduler
 
 api: Api | None = None
 app: Flask | None = None
@@ -18,5 +19,10 @@ def create_app(config_class=AppConfig):
     CORS(app)
     app.config.from_object(config_class)
     register_resources(api)
+    scheduler.start()
+
+    @app.teardown_appcontext
+    def shutdown_scheduler(exc=None):
+        scheduler.shutdown()
 
     return app

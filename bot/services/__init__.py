@@ -1,4 +1,4 @@
 from .user import UserRequests
-from .location import LocationRequests
+from .technology import TechnologyRequests
 
-__all__ = ['UserRequests', 'LocationRequests']
+__all__ = ['UserRequests', 'TechnologyRequests']

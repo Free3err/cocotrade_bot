@@ -1,4 +1,4 @@
 from .user import User
-from .location import Location
+from .technology import TechnologyList
 
-__all__ = ['User', 'Location']
+__all__ = ['User', 'TechnologyList']
