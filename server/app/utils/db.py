@@ -4,7 +4,6 @@ from uuid import UUID
 
 from ..instance.db import db
 
-
 class DatabaseUtils:
     @staticmethod
     def db_transaction(func):
