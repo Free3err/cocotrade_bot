@@ -41,7 +41,7 @@ class Farm:
                                                f"📃 <b>Описание:</b> {user['farm']['coconut']['description']}\n"
                                                "\n"
                                                f"🚀 <b>Технология выращивания:</b> {user['farm']['technology']['name']}\n"
-                                               f"💹 <b>Множитель:</b> {user['farm']['technology']['multiplier']}\n"
+                                               f"💹 <b>Множитель:</b> {user['farm']['technology']['multiplier']}x\n"
                                                f"📃 <b>Описание:</b> {user['farm']['technology']['description']}",
                                                parse_mode='HTML', reply_markup=markup)
 
@@ -50,7 +50,9 @@ class Farm:
         await state.set_state(FarmStates.in_tech_store)
 
         technologies = TechnologyRequests.get_all()
-        buttons = [[InlineKeyboardButton(text=tech['name'], callback_data="the_tech_view")] for tech in technologies]
+        await state.update_data(technologies=technologies)
+
+        buttons = [[InlineKeyboardButton(text=tech['name'], callback_data=f"chosen_tech_view.{tech['id']}")] for tech in technologies]
         buttons.append([InlineKeyboardButton(text="🔙 Назад", callback_data='farm')])
         markup = InlineKeyboardMarkup(inline_keyboard=buttons)
 

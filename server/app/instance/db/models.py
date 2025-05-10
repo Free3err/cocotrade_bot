@@ -62,6 +62,7 @@ class Technology(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     multiplier = Column(REAL, default=1)
+    price = Column(Integer, nullable=False)
 
 
 class Role(Base):
@@ -80,6 +81,7 @@ class Coconut(Base):
     description = Column(String, nullable=False)
     amount_per_hour = Column(Integer, nullable=False)
     is_experimental = Column(Boolean, default=False)
+    price = Column(Integer, nullable=False)
 
 
 class Location(Base):
@@ -96,3 +98,13 @@ class Conference(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     time_start = Column(DateTime, nullable=False)
+
+
+class Donation(Base):
+    __tablename__ = 'donations'
+
+    id = Column(Integer, primary_key=True)
+    donator = Column(Integer, ForeignKey('users.id'), nullable=False, default=0)
+    amount = Column(Integer, nullable=False)
+
+    user_relation = relationship("User", uselist=False)

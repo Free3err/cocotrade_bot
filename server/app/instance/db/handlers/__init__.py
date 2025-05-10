@@ -5,3 +5,4 @@ from .farms import FarmHandler
 from .coconuts import CoconutHandler
 from .technologies import TechnologyHandler
 from .conferences import ConferenceHandler
+from .donations import DonationsHandler

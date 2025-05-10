@@ -4,5 +4,6 @@ from .store import Store
 from .admin import Admin, AdminManagingAccount
 from .managing_account import ManagingAccount
 from .farm import Farm
+from .technology import Technology
 
-__all__ = ['MainMenu', 'Others', 'Store', 'Admin', 'ManagingAccount', 'AdminManagingAccount', 'Farm']
+__all__ = ['MainMenu', 'Others', 'Store', 'Admin', 'ManagingAccount', 'AdminManagingAccount', 'Farm', 'Technology']

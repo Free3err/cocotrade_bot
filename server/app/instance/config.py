@@ -1,6 +1,11 @@
 import os
 import logging
 
+import dotenv
+from yookassa import Configuration
+
+dotenv.load_dotenv()
+
 
 class AppConfig:
     BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -8,6 +13,11 @@ class AppConfig:
     API_HOST = os.getenv('API_HOST')
     CORS_HEADERS = 'Content-Type'
     CORS_ORIGINS = ['http://localhost:3000', os.getenv('API_HOST')]
+
+
+class PaymentsConfig:
+    Configuration.secret_key = os.getenv('PAYMENT_KEY')
+    Configuration.account_id = os.getenv('PAYMENT_ACCOUNT_ID')
 
 
 class DatabaseConfig:

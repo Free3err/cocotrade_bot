@@ -21,8 +21,4 @@ def create_app(config_class=AppConfig):
     register_resources(api)
     scheduler.start()
 
-    @app.teardown_appcontext
-    def shutdown_scheduler(exc=None):
-        scheduler.shutdown()
-
     return app

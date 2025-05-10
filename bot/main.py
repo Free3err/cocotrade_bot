@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 
 from bot.handlers import *
-from config import EnvConfig
+from bot.config import EnvConfig
 
 dispatcher = Dispatcher()
 
@@ -25,6 +25,7 @@ class CocoTradeBot:
         ManagingAccount.register_all(dispatcher)
         MainMenu.register_all(dispatcher)
         Farm.register_all(dispatcher)
+        Technology.register_all(dispatcher)
         Admin.register_all(dispatcher)
         Store.register_all(dispatcher)
         Others.register_all(dispatcher)

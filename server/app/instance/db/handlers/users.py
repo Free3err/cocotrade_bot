@@ -1,8 +1,15 @@
+from typing import List
+
 from ....utils import DatabaseUtils
 from ..models import User
 
 
 class UserHandler:
+    @staticmethod
+    @DatabaseUtils.db_transaction
+    def get_all(session) -> List[User]:
+        return session.query(User).all()
+
     @staticmethod
     @DatabaseUtils.db_transaction
     def get(session, user_id: int | None = None, telegram_id: int | None = None) -> User | None:
@@ -34,18 +41,24 @@ class UserHandler:
     @staticmethod
     @DatabaseUtils.db_transaction
     def update(session, telegram_id, data):
-        from .farms import FarmHandler
-        
+        from . import FarmHandler
+
         user = session.query(User).filter(User.telegram_id == telegram_id).one_or_none()
         if not user:
             return None
-            
+
         for key, value in data.items():
             if key == 'farm' and isinstance(value, dict):
                 FarmHandler.update(farm_id=user.farm, data=value)
+            elif key == 'location' and isinstance(value, dict):
+                if 'id' in value:
+                    setattr(user, 'location', value['id'])
+            elif key == 'role' and isinstance(value, dict):
+                if 'id' in value:
+                    setattr(user, 'role', value['id'])
             else:
                 setattr(user, key, value)
-                
+
         session.commit()
         session.refresh(user)
         return user

@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, CallbackQuery
 from aiogram.filters import Command
 
-from bot.services import UserRequests
+from bot.services import UserRequests, StatisticRequests
 
 
 class MainMenu:
@@ -13,7 +13,7 @@ class MainMenu:
         dispatcher.message.register(MainMenu.farm, F.text.contains("🥥 Ферма"))
         dispatcher.message.register(MainMenu.store, F.text.contains("🛍️ Магазин"))
         dispatcher.message.register(MainMenu.travels, F.text.contains("✈️ Путешествия"))
-        dispatcher.message.register(MainMenu.statistic, F.text.contains("📉 Статистика"))
+        dispatcher.message.register(MainMenu.statistic, F.text.contains("📊 Статистика"))
         dispatcher.message.register(MainMenu.settings, F.text.contains("⚙️ Настройки"))
         dispatcher.message.register(MainMenu.about, F.text.contains("🏝️ О проекте"))
 
@@ -28,7 +28,7 @@ class MainMenu:
 
         buttons = [[KeyboardButton(text="🥥 Ферма")],
                    [KeyboardButton(text="🛍️ Магазин"), KeyboardButton(text="✈️ Путешествия")],
-                   [KeyboardButton(text="📉 Статистика")],
+                   [KeyboardButton(text="📊 Статистика")],
                    [KeyboardButton(text="⚙️ Настройки"), KeyboardButton(text="🏝️ О проекте")]]
         markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
 
@@ -58,7 +58,7 @@ class MainMenu:
 
                 await query.answer("🥥 <b>Добро пожаловать на ферму!</b>\n"
                                    f"\n"
-                                   f"🌱 Выросло на ферме: <b> {user_data['farm']['uncollected']} кокосов</b>\n"
+                                   f"🌱 Выросло на ферме: <b>{user_data['farm']['uncollected']} кокосов</b>\n"
                                    f"🕑 Скорость созревания: <b>{growing_speed} кокосов/час</b>\n"
                                    f"\n"
                                    f"🏦 Кокосовый баланс: <b>{user_data['coconut_balance']} кокосов</b>\n"
@@ -73,7 +73,7 @@ class MainMenu:
 
                 await query.message.edit_text("🥥 <b>Добро пожаловать на ферму!</b>\n"
                                               f"\n"
-                                              f"🌱 Выросло на ферме: <b> {user_data['farm']['uncollected']} кокосов</b>\n"
+                                              f"🌱 Выросло на ферме: <b>{user_data['farm']['uncollected']} кокосов</b>\n"
                                               f"🕑 Скорость созревания: <b>{growing_speed} кокосов/час</b>\n"
                                               f"\n"
                                               f"🏦 Кокосовый баланс: <b>{user_data['coconut_balance']} кокосов</b>\n"
@@ -83,8 +83,8 @@ class MainMenu:
 
     @staticmethod
     async def store(query: types.Message | types.CallbackQuery) -> None:
-        buttons = [[InlineKeyboardButton(text="🏪 Обычный магазин", callback_data='store')],
-                   [InlineKeyboardButton(text="🏬 VIP магазин", callback_data='donut_store')]]
+        buttons = [[InlineKeyboardButton(text="🏪 Обычный магазин", callback_data='common_store')],
+                   [InlineKeyboardButton(text="🏬 VIP магазин", callback_data='donate_store')]]
         markup = InlineKeyboardMarkup(inline_keyboard=buttons)
 
         match type(query):
@@ -104,7 +104,8 @@ class MainMenu:
         match type(query):
             case types.Message:
                 user_data = UserRequests.get(query.from_user.id)
-                await query.answer(f"🧳 <b>Сейчас Вы находить в {user_data['location']['name']}!</b>", parse_mode="HTML",
+                await query.answer(f"🧳 <b>Сейчас Вы находитесь в {user_data['location']['name']}!</b>",
+                                   parse_mode="HTML",
                                    reply_markup=markup)
             case types.CallbackQuery:
                 user_data = UserRequests.get(query.message.from_user.id)
@@ -114,12 +115,15 @@ class MainMenu:
 
     @staticmethod
     async def statistic(message: types.Message) -> None:
-        statistics = {}
-        await message.answer(f"📉 <b>Статистика проекта CocoTrade</b>\n"
+        statistics = StatisticRequests.get()
+        await message.answer(f"📊 <b>Статистика проекта CocoTrade</b>\n"
                              f"\n"
-                             f"👥 Кол-во ферм: <b>{statistics['count_farms']}</b>\n"
-                             f"🥥 Всего кокосов: <b>{statistics['count_coconut']}</b>\n"
-                             f"💸 Донатов на сумму: <b>{statistics['count_donuts']} рублей</b>",
+                             f"👥 Кол-во ферм: <b>{statistics['farms_count']} ферм</b>\n"
+                             f"🥥 Всего кокосов: <b>{statistics['coconuts_count']} кокосов</b>\n"
+                             f"💸 Донатов на сумму: <b>{statistics['donations_sum']} рублей</b>\n"
+                             "\n"
+                             "❤️‍🔥 <b>Топ донатеров:</b>\n"
+                             "<i>Пока в разработке...</i>\n",
                              parse_mode="HTML")
 
     @staticmethod
