@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: coconut-bot
+    restart: always
+    command: python -m bot.main
+    working_dir: /app
+    volumes:
+      - ./.env:/app/.env
+    environment:
+      - PYTHONPATH=/app
+      - TOKEN=${TOKEN}
+      - API_HOST=http://server:5000
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      - server
+
+  server:
+    build: .
+    container_name: coconut-server
+    restart: always
+    command: python -m server.run
+    working_dir: /app
+    volumes:
+      - ./.env:/app/.env
+      - ./server/app/instance/db:/app/server/app/instance/db
+    environment:
+      - PYTHONPATH=/app
+      - SECRET_KEY=${SECRET_KEY}
+      - API_HOST=http://0.0.0.0:5000
+    ports:
+      - "5000:5000"
