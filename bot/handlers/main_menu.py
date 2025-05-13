@@ -104,7 +104,9 @@ class MainMenu:
         match type(query):
             case types.Message:
                 user_data = UserRequests.get(query.from_user.id)
-                await query.answer(f"🧳 <b>Сейчас Вы находитесь в {user_data['location']['name']}!</b>",
+                await query.answer(f"🧳 <b>Сейчас Вы находитесь в {user_data['location']['name']}!</b>\n"
+                                   "\n"
+                                   "<i>Данное меню пока не реализовано, поскольку не найден оптимальный способ его реализовать...</i>",
                                    parse_mode="HTML",
                                    reply_markup=markup)
             case types.CallbackQuery:

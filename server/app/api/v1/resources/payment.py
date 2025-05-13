@@ -1,9 +1,7 @@
-import uuid
-
 from flask import request, make_response
 from flask_restx import Resource
 
-from server.app.api.v1.resources.services import PaymentService
+from server.app.api.v1.services import PaymentService
 
 
 class PaymentStatic(Resource):

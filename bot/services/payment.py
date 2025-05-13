@@ -19,11 +19,3 @@ class PaymentRequests:
         if response.status_code == 200:
             return response.json()['data']
         return {}
-
-    @staticmethod
-    def check_status(payment_id: str) -> dict:
-        response = requests.get(f"{EnvConfig.API_HOST}/api/v1/payment/{payment_id}")
-        
-        if response.status_code == 200:
-            return response.json()['data']['status']
-        return {}

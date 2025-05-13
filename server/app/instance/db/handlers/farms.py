@@ -54,8 +54,9 @@ class FarmHandler:
                 technology = farm.technology_relation
 
                 new_coconuts = technology.multiplier * farm.coconuts_count * coconut.amount_per_hour
-                farm.uncollected += new_coconuts
-                updated_farms += 1
+                if new_coconuts + farm.uncollected <= coconut.amount_per_hour * farm.coconuts_count * technology.multiplier * 8:
+                    farm.uncollected += new_coconuts
+                    updated_farms += 1
 
         session.commit()
         return updated_farms

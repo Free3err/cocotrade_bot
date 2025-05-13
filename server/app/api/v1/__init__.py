@@ -9,7 +9,9 @@ resources = {
     Statistic: '/api/v1/statistic',
     CoconutList: '/api/v1/coconuts',
     PaymentStatic: '/api/v1/payment/<string:payment_id>',
-    PaymentCreate: '/api/v1/payment'
+    PaymentCreate: '/api/v1/payment',
+    DonationStatic: '/api/v1/donation/<int:donation_id>',
+    DonationCreate: '/api/v1/donation',
 }
 
 

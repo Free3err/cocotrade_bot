@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from bot.services import CoconutRequests, UserRequests, PaymentRequests
+from bot.services import CoconutRequests, UserRequests, PaymentRequests, DonationRequests
 
 store_router = Router()
 
@@ -79,9 +79,11 @@ class CommonStore:
     @staticmethod
     async def input_quantity_handler(callback_query: types.CallbackQuery, state: FSMContext):
         await state.set_state(StoreStates.input_quantity)
+        state_data = await state.get_data()
 
         markup = InlineKeyboardMarkup(
-            inline_keyboard=[[InlineKeyboardButton(text="🔙 Назад", callback_data="common_store")]])
+            inline_keyboard=[[InlineKeyboardButton(text="🔙 Назад",
+                                                   callback_data=f"chosen_coco_view.{state_data['chosen_coco']['id']}")]])
         await callback_query.message.edit_text("✍️ <b>Введите кол-во покупаемого продукта:</b>", parse_mode="HTML",
                                                reply_markup=markup)
 
@@ -187,13 +189,16 @@ class DonateStore:
     @staticmethod
     async def check_payment_status(callback_query: types.CallbackQuery):
         payment_id = callback_query.data.split(".")[1]
-        payment_status = PaymentRequests.check_status(payment_id)
+        payment = PaymentRequests.get(payment_id)
+        payment_status = payment['status']
 
         if not payment_status:
             await callback_query.answer("❌ Ошибка при проверке статуса платежа", show_alert=True)
             return
 
         if payment_status == "succeeded":
+            UserRequests.patch(callback_query.from_user.id, {"rub_balance": payment['amount']['value']})
+            DonationRequests.create({"donator_id": callback_query.from_user.id, "amount": payment['amount']['value']})
             await callback_query.message.edit_text(
                 "✅ <b>Спасибо за ваше пожертвование!</b>\n\n"
                 "Ваша поддержка помогает развивать проект!",
